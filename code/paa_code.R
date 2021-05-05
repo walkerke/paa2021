@@ -26,7 +26,8 @@ vancouver_data <- vancouver_extract %>%
     pct_english = 100 * (v_CA16_1364 / Population),
     median_income = v_CA16_2397,
     pct_65_up = 100 * (v_CA16_244 / Population)
-  )
+  ) %>%
+  st_transform(3005)
 
 
 

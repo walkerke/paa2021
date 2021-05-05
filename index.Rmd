@@ -87,7 +87,7 @@ style_xaringan(
 
 * Examples include official government APIs (US Census) and third-party APIs (e.g. Canada's CensusMapper)
 
-* Software tools like {censusapi} and {tigris} (US) and {cancensus} (Canada) allow for programmatic access to data resources
+* Software tools like __censusapi__ and __tigris__ (US) and __cancensus__ (Canada) allow for programmatic access to data resources
 
 ]
 
@@ -127,6 +127,7 @@ vancouver_extract <- get_census(
 
 ```{r}
 library(tidyverse)
+library(sf)
 
 vancouver_data <- vancouver_extract %>%
   transmute(
@@ -134,8 +135,9 @@ vancouver_data <- vancouver_extract %>%
     pct_english = 100 * (v_CA16_1364 / Population),
     median_income = v_CA16_2397,
     pct_65_up = 100 * (v_CA16_244 / Population)
-  )
-
+  ) %>%
+  st_transform(3005)
+  
 ```
 ]
 
