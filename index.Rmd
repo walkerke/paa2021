@@ -1,0 +1,223 @@
+---
+title: "Spatial Demography with Open Source Tools"
+author: "Kyle Walker"
+date: 'May 5, 2021'
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: xaringan-themer.css
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE, tigris_use_cache = TRUE)
+options(cancensus.api_key = Sys.getenv("CANCENSUS_API_KEY"))
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
+
+```
+
+```{r xaringan-themer, include=FALSE, warning=FALSE}
+library(xaringanthemer)
+style_xaringan(
+  title_slide_background_color = "white",
+  title_slide_text_color = "#4d1979",
+  text_color = "black",
+  header_color = "#4d1979",
+  inverse_background_color = "#4d1979",
+  text_font_family = "Gotham Narrow",
+  text_font_size = "1.2rem",
+  header_font_family = "Helvetica",
+  header_font_weight = "bold",
+  link_color = "#4d1979",
+  code_inline_color = "#4d1979",
+  title_slide_background_image = "img/TCULogo_purple_5X7-01.jpg",
+  title_slide_background_size = "250px",
+  title_slide_background_position = "95% 95%"
+)
+```
+
+## Software and spatial demography
+
+<img src=img/commercial.png style="width: 700px">
+
+---
+
+## Problems with traditional workflows
+
+* Point-and-click software can inhibit reproducibility and collaboration
+
+--
+
+* Even if an analysis is scripted: 
+
+--
+
+  - The use of commercial software makes workflows inaccessible to analysts who cannot afford the license fees;
+  
+--
+  
+  - Data access is rarely automated and is difficult to reproduce; 
+  
+--
+  
+  - Data wrangling, modeling, and visualization are "siloed" in different commercial software packages
+
+---
+
+## Open source workflows
+
+* __Data sources__: open data APIs
+
+* __Data models__: GeoJSON, simple features (attributes + geometry in single file/object)
+
+* __Modeling & analytics tools__: sf + spdep (R), GeoPandas + PySAL (Python)
+
+* __Presentation tools__: cartography (ggplot2, tmap) + dashboarding (Shiny) in same software environment as analysis
+
+---
+
+## Open data APIs
+
+.pull-left[
+
+* Open data APIs allow analysts to programmatically access data resources
+
+* Examples include official government APIs (US Census) and third-party APIs (e.g. Canada's CensusMapper)
+
+* Software tools like {censusapi} and {tigris} (US) and {cancensus} (Canada) allow for programmatic access to data resources
+
+]
+
+.pull-right[
+
+```{r, results = 'hide'}
+library(cancensus)
+
+vancouver_extract <- get_census(
+  dataset = "CA16",
+  regions = list(CSD = "5915022"),
+  vectors = c("v_CA16_1364", 
+              "v_CA16_2397",
+              "v_CA16_244"),
+  level = "CT",
+  geo_format = "sf",
+  labels = "short"
+)
+```
+
+]
+
+---
+
+
+## Data models
+
+.pull-left[
+
+* Frameworks like the __tidyverse__ (R) and __pandas__ (Python) are widely used for data representation in open-source workflows
+
+* Geospatial extensions to these frameworks (__sf__ for R, __GeoPandas__ for Python) allow spatial demographers to analyze data in similar ways to a regular dataset without dedicated GIS software
+
+]
+
+.pull-right[
+
+```{r}
+library(tidyverse)
+
+vancouver_data <- vancouver_extract %>%
+  transmute(
+    tract_id = GeoUID,
+    pct_english = 100 * (v_CA16_1364 / Population),
+    median_income = v_CA16_2397,
+    pct_65_up = 100 * (v_CA16_244 / Population)
+  )
+
+```
+]
+
+---
+
+```{r}
+vancouver_data
+```
+
+--
+
+```{r}
+plot(vancouver_data$geometry)
+```
+
+---
+
+## Modeling & analytics
+
+.pull-left[
+
+* Models fit to spatial data require modeling _spatial dependence_, often represented with a neighborhood spatial weights matrix
+
+* Example workflow: regionalization with the SKATER algorithm, equivalent to ArcGIS's Spatially Constrained Multivariate Clustering
+
+]
+
+
+.pull-right[
+
+```{r, echo = FALSE}
+library(spdep)
+set.seed(123456)
+
+nb <- poly2nb(vancouver_data,
+              queen = FALSE)
+
+van_coords <- vancouver_data %>%
+  st_centroid() %>%
+  st_coordinates()
+
+plot(vancouver_data$geometry)
+plot(nb, 
+     coords = van_coords, 
+     add = TRUE, 
+     col = "blue", 
+     points = FALSE)
+```
+
+]
+
+---
+
+## Modeling and analytics
+
+<iframe src="img/mapview.html" frameborder="0" seamless scrolling="no" height="450" width="800"></iframe>
+
+---
+
+## Presentation tools
+
+<iframe src="img/ggiraph.html" frameborder="0" seamless scrolling="no" height="450" width="800"></iframe>
+
+---
+
+## Sharing and reproducibility
+
+.pull-left[
+
+* This entire workflow is fully reproducible - [just take a look at the source code]() and run it for yourselves!
+
+* Adoption of open science practices in spatial demography facilitates _collaboration_, _education_, and _innovation_
+
+]
+
+.pull-right[
+
+
+
+]
+
+---
+class: middle, center, inverse
+
+## Thank you!

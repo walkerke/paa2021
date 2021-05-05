@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Spatial Demography with Open Source Tools</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Kyle Walker" />
+    <meta name="date" content="2021-05-05" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Spatial Demography with Open Source Tools
+### Kyle Walker
+### May 5, 2021
+
+---
+
+
+
+
+
+
+## Software and spatial demography
+
+&lt;img src=img/commercial.png style="width: 700px"&gt;
+
+---
+
+## Problems with traditional workflows
+
+* Point-and-click software can inhibit reproducibility and collaboration
+
+--
+
+* Even if an analysis is scripted: 
+
+--
+
+  - The use of commercial software makes workflows inaccessible to analysts who cannot afford the license fees;
+  
+--
+  
+  - Data access is rarely automated and is difficult to reproduce; 
+  
+--
+  
+  - Data wrangling, modeling, and visualization are "siloed" in different commercial software packages
+
+---
+
+## Open source workflows
+
+* __Data sources__: open data APIs
+
+* __Data models__: GeoJSON, simple features (attributes + geometry in single file/object)
+
+* __Modeling &amp; analytics tools__: sf + spdep (R), GeoPandas + PySAL (Python)
+
+* __Presentation tools__: cartography (ggplot2, tmap) + dashboarding (Shiny) in same software environment as analysis
+
+---
+
+## Open data APIs
+
+.pull-left[
+
+* Open data APIs allow analysts to programmatically access data resources
+
+* Examples include official government APIs (US Census) and third-party APIs (e.g. Canada's CensusMapper)
+
+* Software tools like {censusapi} and {tigris} (US) and {cancensus} (Canada) allow for programmatic access to data resources
+
+]
+
+.pull-right[
+
+
+```r
+library(cancensus)
+
+vancouver_extract &lt;- get_census(
+  dataset = "CA16",
+  regions = list(CSD = "5915022"),
+  vectors = c("v_CA16_1364", 
+              "v_CA16_2397",
+              "v_CA16_244"),
+  level = "CT",
+  geo_format = "sf",
+  labels = "short"
+)
+```
+
+]
+
+---
+
+
+## Data models
+
+.pull-left[
+
+* Frameworks like the __tidyverse__ (R) and __pandas__ (Python) are widely used for data representation in open-source workflows
+
+* Geospatial extensions to these frameworks (__sf__ for R, __GeoPandas__ for Python) allow spatial demographers to analyze data in similar ways to a regular dataset without dedicated GIS software
+
+]
+
+.pull-right[
+
+
+```r
+library(tidyverse)
+
+vancouver_data &lt;- vancouver_extract %&gt;%
+  transmute(
+    tract_id = GeoUID,
+    pct_english = 100 * (v_CA16_1364 / Population),
+    median_income = v_CA16_2397,
+    pct_65_up = 100 * (v_CA16_244 / Population)
+  )
+```
+]
+
+---
+
+
+```r
+vancouver_data
+```
+
+```
+## Simple feature collection with 117 features and 4 fields
+## Geometry type: MULTIPOLYGON
+## Dimension:     XY
+## Bounding box:  xmin: -123.2242 ymin: 49.19853 xmax: -123.0229 ymax: 49.31408
+## Geodetic CRS:  WGS 84
+## First 10 features:
+##      tract_id pct_english median_income pct_65_up
+## 1  9330017.02    44.10434         63936 15.153800
+## 2  9330008.02    74.76190        125184 19.047619
+## 3  9330014.01    34.37095         64128 19.455253
+## 4  9330014.02    35.86957         53029 19.481605
+## 5  9330059.13    69.74542         72082  4.839049
+## 6  9330059.14    72.17253         78822  8.207857
+## 7  9330005.00    65.11915         44160 10.202684
+## 8  9330009.00    61.66409         60544 19.428411
+## 9  9330011.00    46.93878         63334 17.762661
+## 10 9330012.00    56.65268         71851 15.490002
+##                          geometry
+## 1  MULTIPOLYGON (((-123.0423 4...
+## 2  MULTIPOLYGON (((-123.1682 4...
+## 3  MULTIPOLYGON (((-123.0594 4...
+## 4  MULTIPOLYGON (((-123.0579 4...
+## 5  MULTIPOLYGON (((-123.1021 4...
+## 6  MULTIPOLYGON (((-123.1021 4...
+## 7  MULTIPOLYGON (((-123.1171 4...
+## 8  MULTIPOLYGON (((-123.1398 4...
+## 9  MULTIPOLYGON (((-123.0909 4...
+## 10 MULTIPOLYGON (((-123.0907 4...
+```
+
+--
+
+
+```r
+plot(vancouver_data$geometry)
+```
+
+![](index_files/figure-html/unnamed-chunk-4-1.png)&lt;!-- --&gt;
+
+---
+
+## Modeling &amp; analytics
+
+.pull-left[
+
+* Models fit to spatial data require modeling _spatial dependence_, often represented with a neighborhood spatial weights matrix
+
+* Example workflow: regionalization with the SKATER algorithm, equivalent to ArcGIS's Spatially Constrained Multivariate Clustering
+
+]
+
+
+.pull-right[
+
+![](index_files/figure-html/unnamed-chunk-5-1.png)&lt;!-- --&gt;
+
+]
+
+---
+
+## Modeling and analytics
+
+&lt;iframe src="img/mapview.html" frameborder="0" seamless scrolling="no" height="450" width="800"&gt;&lt;/iframe&gt;
+
+---
+
+## Presentation tools
+
+&lt;iframe src="img/ggiraph.html" frameborder="0" seamless scrolling="no" height="450" width="800"&gt;&lt;/iframe&gt;
+
+---
+
+## Sharing and reproducibility
+
+.pull-left[
+
+* This entire workflow is fully reproducible - [just take a look at the source code]() and run it for yourselves!
+
+* Adoption of open science practices in spatial demography facilitates _collaboration_, _education_, and _innovation_
+
+]
+
+.pull-right[
+
+
+
+]
+
+---
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
