@@ -28,7 +28,7 @@ style_xaringan(
   header_color = "#4d1979",
   inverse_background_color = "#4d1979",
   text_font_family = "Gotham Narrow",
-  text_font_size = "1.2rem",
+  text_font_size = "1.15rem",
   header_font_family = "Helvetica",
   header_font_weight = "bold",
   link_color = "#4d1979",
