@@ -33,6 +33,7 @@ style_xaringan(
   header_font_weight = "bold",
   link_color = "#4d1979",
   code_inline_color = "#4d1979",
+  code_font_size = "0.7rem",
   title_slide_background_image = "img/TCULogo_purple_5X7-01.jpg",
   title_slide_background_size = "250px",
   title_slide_background_position = "95% 95%"
