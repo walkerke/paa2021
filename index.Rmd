@@ -145,7 +145,7 @@ vancouver_data <- vancouver_extract %>%
 vancouver_data
 ```
 
---
+---
 
 ```{r}
 plot(vancouver_data$geometry)
@@ -205,7 +205,7 @@ plot(nb,
 
 .pull-left[
 
-* This entire workflow is fully reproducible - [just take a look at the source code]() and run it for yourselves!
+* This entire workflow is fully reproducible - [just take a look at the source code](https://github.com/walkerke/paa2021/blob/main/code/paa_code.R) and run it for yourselves!
 
 * Adoption of open science practices in spatial demography facilitates _collaboration_, _education_, and _innovation_
 
@@ -213,7 +213,7 @@ plot(nb,
 
 .pull-right[
 
-
+<img src=img/github.png style="width: 400px">
 
 ]
 
