@@ -93,7 +93,7 @@ style_xaringan(
 
 .pull-right[
 
-```{r, results = 'hide'}
+```{r extract-data, results = 'hide'}
 library(cancensus)
 
 vancouver_extract <- get_census(
@@ -125,7 +125,7 @@ vancouver_extract <- get_census(
 
 .pull-right[
 
-```{r}
+```{r wrangle-data}
 library(tidyverse)
 library(sf)
 
@@ -143,13 +143,13 @@ vancouver_data <- vancouver_extract %>%
 
 ---
 
-```{r}
+```{r view-data}
 vancouver_data
 ```
 
 ---
 
-```{r}
+```{r plot-data}
 plot(vancouver_data$geometry)
 ```
 
@@ -168,7 +168,7 @@ plot(vancouver_data$geometry)
 
 .pull-right[
 
-```{r, echo = FALSE}
+```{r spdep, echo = FALSE}
 library(spdep)
 set.seed(123456)
 
